@@ -5,9 +5,13 @@ from pydantic import EmailStr
 from sqlalchemy import DateTime
 from sqlmodel import Field, Relationship, SQLModel
 
+from typing import Optional
+from uuid import UUID, uuid4
+from pydantic import BaseModel
 
 def get_datetime_utc() -> datetime:
     return datetime.now(timezone.utc)
+
 
 
 # Shared properties
@@ -67,10 +71,15 @@ class UsersPublic(SQLModel):
     count: int
 
 
-# Shared properties
 class ItemBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     description: str | None = Field(default=None, max_length=255)
+
+    # 👇 ADD THESE
+    price: float = 0.0
+    category: str | None = None
+    gender: str | None = None
+    in_stock: bool = True
 
 
 # Properties to receive on item creation
@@ -127,3 +136,18 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+
+
+
+
+
+
+class ClothItem(BaseModel):
+    id: int
+    name: str
+    category: str
+    gender: str
+    price: float
+    in_stock: bool
