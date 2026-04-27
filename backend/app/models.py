@@ -138,16 +138,17 @@ class NewPassword(SQLModel):
     new_password: str = Field(min_length=8, max_length=128)
 
 
+class   ClothItem(SQLModel, table=True):
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
 
-
-
-
-
-
-class ClothItem(BaseModel):
-    id: int
     name: str
-    category: str
+    category: str  # "top", "bottom", "shoes"
     gender: str
+
     price: float
-    in_stock: bool
+    image_url: Optional[str] = None
+
+    # important for your logic
+    style_tags: str  # e.g. "casual,streetwear"
+
+    in_stock: bool = True

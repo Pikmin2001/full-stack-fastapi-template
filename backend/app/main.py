@@ -6,6 +6,9 @@ from starlette.middleware.cors import CORSMiddleware
 from app.api.main import api_router
 from app.core.config import settings
 
+from app.api.routes.outfits import router as outfits_router
+
+api_router.include_router(outfits_router)
 
 def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
