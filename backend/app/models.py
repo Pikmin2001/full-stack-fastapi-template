@@ -139,7 +139,8 @@ class NewPassword(SQLModel):
 
 
 class   ClothItem(SQLModel, table=True):
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    #id: UUID = Field(default_factory=uuid4, primary_key=True)
+    id: int
 
     name: str
     category: str  # "top", "bottom", "shoes"
@@ -149,6 +150,6 @@ class   ClothItem(SQLModel, table=True):
     image_url: Optional[str] = None
 
     # important for your logic
-    style_tags: str  # e.g. "casual,streetwear"
+    #style_tags: str  # e.g. "casual,streetwear"
 
     in_stock: bool = True

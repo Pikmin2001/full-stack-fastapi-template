@@ -1,49 +1,21 @@
 from fastapi import APIRouter
-import random
 from typing import Optional
-
-from app.models import ClothItem
+from app.services.outfit_service import generate_outfit
+from app.data.fake_inventory import fake_items
 
 router = APIRouter(prefix="/outfits", tags=["outfits"])
 
-
-items = [
-    ClothItem(id=1, name="Blue Shirt", category="top", gender="male", price=25.0, in_stock=True),
-    ClothItem(id=2, name="Black Jeans", category="bottom", gender="male", price=40.0, in_stock=True),
-    ClothItem(id=3, name="White Sneakers", category="shoes", gender="male", price=60.0, in_stock=True),
-    ClothItem(id=4, name="Red Shirt", category="top", gender="female", price=30.0, in_stock=True),
-    ClothItem(id=5, name="Skirt", category="bottom", gender="female", price=45.0, in_stock=True),
-]
-
-
 @router.post("/generate")
-def generate_outfit(
+def generate(
     gender: Optional[str] = None,
     max_price: Optional[float] = None,
 ):
-    filtered_items = [
-        item for item in items
-        if item.in_stock
-        and (gender is None or item.gender == gender)
-        and (max_price is None or item.price <= max_price)
-    ]
+    outfit = generate_outfit(fake_items, gender, max_price)
 
-    tops = [i for i in filtered_items if i.category == "top"]
-    bottoms = [i for i in filtered_items if i.category == "bottom"]
-    shoes = [i for i in filtered_items if i.category == "shoes"]
+    if not outfit:
+        return {"error": "Not enough items to build outfit"}
 
-    top = random.choice(tops) if tops else None
-    bottom = random.choice(bottoms) if bottoms else None
-    shoe = random.choice(shoes) if shoes else None
-
-    total_price = sum([i.price for i in [top, bottom, shoe] if i])
-
-    return {
-        "top": top,
-        "bottom": bottom,
-        "shoes": shoe,
-        "total_price": total_price
-    }
+    return outfit
 
 @router.post("/swap")
 def swap_item(
@@ -65,10 +37,12 @@ def swap_item(
         current_id = current_item.id
         current_price = current_item.price
         current_gender = current_item.gender
-
+        
+    if current_price is None:
+        return {"error": "Current item is missing price"}
     # Step 1: same category + in stock
     candidates = [
-        item for item in items
+        item for item in fake_items
         if item.category == item_type and item.in_stock
     ]
 
@@ -95,7 +69,7 @@ def swap_item(
     best_item = min(candidates, key=lambda x: abs(x.price - current_price))
 
     # Replace with dict
-    current_outfit[item_type] = best_item.dict()
+    current_outfit[item_type] = best_item.model_dump()
 
     # Recalculate total price
     total_price = sum([
